@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quiz App</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        padding: 20px;
+    }
+    .container {
+        background: #fff;
+        max-width: 700px;
+        margin: auto;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .option {
+        padding: 10px;
+        margin: 8px 0;
+        border: 1px solid #ccc;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .correct {
+        background-color: #b6fcb6;
+    }
+    .wrong {
+        background-color: #ffb3b3;
+    }
+    button {
+        padding: 10px 15px;
+        margin: 10px 5px 0 0;
+        font-size: 16px;
+    }
+    #timer {
+        color: red;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2 id="question"></h2>
+    <div id="options"></div>
+
+    <p>⏱️ Time Left: <span id="timer">10</span> seconds</p>
+    <p id="scoreText">Score: 0</p>
+
+    <button onclick="nextQuestion()">Next</button>
+    <button onclick="restartQuiz()">Restart</button>
+
+    <h3 id="finalScore"></h3>
+</div>
+
+<script>
+const questionBank = [
+    {q:"HTML stands for?", o:["Hyper Text Markup Language","High Text Machine Language","Hyper Tool Markup"], a:0},
+    {q:"CSS is used for?", o:["Styling","Logic","Database"], a:0},
+    {q:"JavaScript is a?", o:["Language","Browser","OS"], a:0},
+    {q:"<a> tag is used for?", o:["Image","Link","List"], a:1},
+    {q:"Which is NOT a language?", o:["HTML","Python","HTTP"], a:2},
+    {q:"CSS class selector uses?", o:["#",".","*"], a:1},
+    {q:"Largest heading tag?", o:["h1","h6","head"], a:0},
+    {q:"HTML file extension?", o:[".html",".css",".js"], a:0},
+    {q:"JS variable keyword?", o:["var","int","string"], a:0},
+    {q:"Relative CSS unit?", o:["px","cm","em"], a:2},
+    {q:"Image tag?", o:["img","image","pic"], a:0},
+    {q:"Form tag?", o:["form","input","submit"], a:0},
+    {q:"Paragraph tag?", o:["p","text","para"], a:0},
+    {q:"JS runs in?", o:["Browser","Compiler","Server"], a:0},
+    {q:"Text color property?", o:["font","color","text"], a:1},
+    {q:"Metadata tag?", o:["body","head","meta"], a:1},
+    {q:"Checkbox type?", o:["box","checkbox","check"], a:1},
+    {q:"JS file extension?", o:[".java",".js",".jsx"], a:1},
+    {q:"Ordered list tag?", o:["ol","ul","li"], a:0},
+    {q:"Line break tag?", o:["br","lb","hr"], a:0}
+];
+
+let quiz = [];
+let current = 0;
+let score = 0;
+let timer;
+let timeLeft = 10;
+
+function startQuiz() {
+    quiz = [...questionBank].sort(() => 0.5 - Math.random()).slice(0, 10);
+    current = 0;
+    score = 0;
+    document.getElementById("finalScore").innerText = "";
+    loadQuestion();
+}
+
+function loadQuestion() {
+    clearInterval(timer);
+    timeLeft = 10;
+    document.getElementById("timer").innerText = timeLeft;
+    document.getElementById("scoreText").innerText = `Score: ${score}`;
+    document.getElementById("options").innerHTML = "";
+
+    let q = quiz[current];
+    document.getElementById("question").innerText = `Q${current+1}. ${q.q}`;
+
+    q.o.forEach((opt, i) => {
+        let div = document.createElement("div");
+        div.className = "option";
+        div.innerText = opt;
+        div.onclick = () => checkAnswer(div, i);
+        document.getElementById("options").appendChild(div);
+    });
+
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").innerText = timeLeft;
+        if (timeLeft === 0) {
+            clearInterval(timer);
+            nextQuestion();
+        }
+    }, 1000);
+}
+
+function checkAnswer(el, choice) {
+    clearInterval(timer);
+    let correct = quiz[current].a;
+    let options = document.querySelectorAll(".option");
+
+    options.forEach((o, i) => {
+        if (i === correct) o.classList.add("correct");
+        if (i === choice && i !== correct) o.classList.add("wrong");
+        o.onclick = null;
+    });
+
+    if (choice === correct) score++;
+    document.getElementById("scoreText").innerText = `Score: ${score}`;
+}
+
+function nextQuestion() {
+    current++;
+    if (current < quiz.length) {
+        loadQuestion();
+    } else {
+        document.getElementById("question").innerText = "Quiz Completed!";
+        document.getElementById("options").innerHTML = "";
+        document.getElementById("finalScore").innerText =
+            `Final Score: ${score} / 10`;
+        clearInterval(timer);
+    }
+}
+
+function restartQuiz() {
+    startQuiz();
+}
+
+startQuiz();
+</script>
+
+</body>
+</html>
